@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Bookstore Admin Navigation - Pict Example</title>
+
+		<!-- PICT Dynamic View CSS Container -->
+		<style id="PICT-CSS"></style>
+
+		<!-- Font Awesome (example apps may use a CDN) — the navigation graph uses
+		     FontAwesome classes for its node icons; the module's own chrome glyphs
+		     come from the Pict icon registry. -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css">
+
+		<!-- "Reading Room" theme — defines the pict --theme-color-* tokens the
+		     navigation views paint with, so the whole thing is themed. -->
+		<style>
+			:root {
+				--theme-color-background-primary: #fffdf8;
+				--theme-color-background-panel: #ffffff;
+				--theme-color-background-secondary: #f6f1e7;
+				--theme-color-background-tertiary: #ece4d6;
+				--theme-color-background-hover: #f0e9db;
+				--theme-color-text-primary: #2b2620;
+				--theme-color-text-secondary: #4f463a;
+				--theme-color-text-muted: #8a7f6e;
+				--theme-color-text-on-brand: #fffdf8;
+				--theme-color-brand-primary: #2e7d74;
+				--theme-color-brand-secondary: #9c6b3f;
+				--theme-color-brand-accent: #c2683a;
+				--theme-color-border-default: #ddd2bf;
+				--theme-color-border-light: #ece4d6;
+				--theme-color-border-strong: #b8a98f;
+				--theme-color-status-success: #3a7a4a;
+				--theme-color-status-warning: #b07a1e;
+				--theme-color-status-error: #b5402f;
+				--theme-color-status-info: #2e7d74;
+				--theme-color-selection-background: #cfe6e2;
+				--theme-color-shadow-color: rgba(43, 38, 32, 0.14);
+			}
+
+			*, *::before, *::after { box-sizing: border-box; }
+			body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+				background: var(--theme-color-background-secondary); color: var(--theme-color-text-primary); }
+
+			.pict-example-header { display: flex; align-items: stretch; background: #2b2620; position: sticky; top: 0; z-index: 100; border-bottom: 3px solid var(--theme-color-brand-primary); }
+			.pict-example-badge { background: var(--theme-color-brand-primary); color: #fffdf8; padding: 0.6rem 1rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 0.5rem; }
+			.pict-example-app-name { padding: 0.6rem 1rem; color: #f6f1e7; font-size: 1.1rem; font-weight: 600; display: flex; align-items: center; }
+			.pict-example-module { margin-left: auto; padding: 0.6rem 1rem; color: #c8b79a; font-size: 0.75rem; display: flex; align-items: center; letter-spacing: 0.03em; font-family: ui-monospace, Menlo, Consolas, monospace; }
+
+			.pict-example-content { padding: 1.5rem; }
+			#Bookstore-Container { max-width: 1040px; margin: 0 auto; }
+		</style>
+
+		<script src="./pict.min.js" type="text/javascript"></script>
+		<script type="text/javascript">Pict.safeOnDocumentReady(() => { Pict.safeLoadPictApplication(PictSectionNavigationExampleBookstore, 2); });</script>
+	</head>
+	<body>
+		<div class="pict-example-header">
+			<div class="pict-example-badge">Pict Example</div>
+			<div class="pict-example-app-name">Bookstore Admin Navigation</div>
+			<div class="pict-example-module">pict-section-navigation</div>
+		</div>
+		<div class="pict-example-content">
+			<div id="Bookstore-Container"></div>
+		</div>
+		<script src="./pict-section-navigation-example-bookstore.compatible.min.js" type="text/javascript"></script>
+	</body>
+</html>

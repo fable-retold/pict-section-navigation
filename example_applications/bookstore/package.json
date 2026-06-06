@@ -1,0 +1,38 @@
+{
+	"name": "pict-section-navigation-example-bookstore",
+	"version": "0.0.1",
+	"description": "Bookstore Admin Navigation Example Application",
+	"main": "source/Pict-Application-Bookstore.js",
+	"retold": {
+		"ExampleApplication": {
+			"Stage": true,
+			"Title": "Bookstore Admin Navigation",
+			"Summary": "One navigation graph for a bookstore back-office, rendered four ways — Hub cards, a search-first Sidebar, a Command Palette, and a Grouped List. Flip between render types and watch search + inline help work in each.",
+			"Complexity": "Intermediate"
+		}
+	},
+	"scripts": {
+		"start": "node serve.js",
+		"build": "npx quack build && npx quack copy",
+		"serve": "node serve.js"
+	},
+	"author": "steven velozo <steven@velozo.com>",
+	"license": "MIT",
+	"copyFilesSettings": {
+		"whenFileExists": "overwrite"
+	},
+	"copyFiles": [
+		{
+			"from": "./html/*",
+			"to": "./dist/"
+		},
+		{
+			"from": "../../../../../node_modules/pict/dist/*",
+			"to": "./dist/"
+		}
+	],
+	"dependencies": {
+		"pict": "^1.0.372",
+		"pict-application": "^1.0.28"
+	}
+}

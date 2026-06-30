@@ -181,7 +181,9 @@ class PictViewNavigationSidebar extends libPictViewClass
 		tmpCategories.forEach((pCategory) =>
 		{
 			const tmpCatStyle = pCategory.Accent ? ` style="color:${pCategory.Accent}"` : '';
-			tmpHTML += `<div class="pict-nav-sb-group">
+			// A category can render collapsed by default (pCategory.Collapsed); an active search forces it open.
+			const tmpCollapsed = (pCategory.Collapsed && !tmpQuery) ? ' collapsed' : '';
+			tmpHTML += `<div class="pict-nav-sb-group${tmpCollapsed}">
 				<div class="pict-nav-sb-group-head" onclick="this.parentNode.classList.toggle('collapsed')">
 					<span class="pict-nav-sb-cat-ic"${tmpCatStyle}>${pCategory.Icon ? `<i class="${pCategory.Icon}"></i>` : ''}</span>
 					<span>${tmpProvider.escapeHTML(pCategory.Name)}</span>

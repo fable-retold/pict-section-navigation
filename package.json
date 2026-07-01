@@ -1,6 +1,6 @@
 {
 	"name": "pict-section-navigation",
-	"version": "1.3.0",
+	"version": "1.4.0",
 	"description": "Pict Section for categorized, searchable application navigation — a navigation graph with swappable render types (hub, sidebar, command palette, list), a docked-sidebar style, and a ⌘K launcher overlay.",
 	"main": "source/Pict-Section-Navigation.js",
 	"scripts": {

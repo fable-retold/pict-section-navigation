@@ -50,7 +50,7 @@ const default_configuration =
 	transition: box-shadow .14s ease, transform .14s ease, border-color .14s ease; }
 .pict-nav-hub-card:hover { box-shadow: 0 8px 20px color-mix(in srgb, var(--theme-color-shadow-color, rgba(15,23,42,0.12)) 80%, transparent);
 	transform: translateY(-2px); border-color: var(--theme-color-brand-primary, #156dd1); }
-.pict-nav-hub-card .pict-nav-ic { color: var(--theme-color-brand-primary, #156dd1); }
+.pict-nav-hub-card .pict-nav-ic { color: var(--theme-color-brand-primary, #156dd1); font-size: 1.4rem; display: inline-flex; align-items: center; }
 .pict-nav-hub-card-text { min-width: 0; }
 .pict-nav-hub-card-name { display: block; font-weight: 650; line-height: 1.15; }
 .pict-nav-hub-card-desc { display: block; font-size: 0.82rem; color: var(--theme-color-text-muted, #6b7686); margin-top: 3px; line-height: 1.38; }
@@ -116,14 +116,14 @@ class PictViewNavigationHub extends libPictViewClass
 		{
 			const tmpCatStyle = pCategory.Accent ? ` style="color:${pCategory.Accent}"` : '';
 			tmpHTML += `<section class="pict-nav-hub-cat ${pCategory.Secondary ? 'is-secondary' : ''}">
-				<header class="pict-nav-hub-cat-head"><span class="pict-nav-hub-cat-ic"${tmpCatStyle}>${pCategory.Icon ? `<i class="${pCategory.Icon}"></i>` : ''}</span><h3>${tmpProvider.escapeHTML(pCategory.Name)}</h3>${pCategory.Blurb ? `<span class="pict-nav-hub-cat-blurb">${tmpProvider.escapeHTML(pCategory.Blurb)}</span>` : ''}</header>
+				<header class="pict-nav-hub-cat-head"><span class="pict-nav-hub-cat-ic"${tmpCatStyle}>${pCategory.Icon ? this.pict.icon(pCategory.Icon) : ''}</span><h3>${tmpProvider.escapeHTML(pCategory.Name)}</h3>${pCategory.Blurb ? `<span class="pict-nav-hub-cat-blurb">${tmpProvider.escapeHTML(pCategory.Blurb)}</span>` : ''}</header>
 				<div class="pict-nav-hub-grid">`;
 			pCategory.Items.forEach((pItem) =>
 			{
 				const tmpAccent = pItem.Accent || pCategory.Accent;
 				const tmpIcStyle = tmpAccent ? ` style="color:${tmpAccent}"` : '';
 				tmpHTML += `<a class="pict-nav-hub-card" href="${pItem.Route ? tmpProvider.escapeHTML(pItem.Route) : '#'}" onclick="return ${tmpHandler}.activate('${pItem.Hash}', event)">
-					<span class="pict-nav-ic"${tmpIcStyle}>${pItem.Icon ? `<i class="${pItem.Icon}"></i>` : ''}</span>
+					<span class="pict-nav-ic"${tmpIcStyle}>${pItem.Icon ? this.pict.icon(pItem.Icon) : ''}</span>
 					<span class="pict-nav-hub-card-text"><span class="pict-nav-hub-card-name">${tmpProvider.highlight(pItem.Name, tmpQuery)}${pItem.Advanced ? '<span class="pict-nav-adv-pill">adv</span>' : ''}</span>${pItem.Description ? `<span class="pict-nav-hub-card-desc">${tmpProvider.highlight(pItem.Description, tmpQuery)}</span>` : ''}</span>
 				</a>`;
 			});

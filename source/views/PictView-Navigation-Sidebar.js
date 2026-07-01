@@ -73,7 +73,7 @@ const default_configuration =
 	box-shadow: inset 3px 0 0 var(--theme-color-brand-primary, #156dd1); }
 .pict-nav-sb-item .pict-nav-sb-item-ic { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
 	width: 26px; height: 26px; border-radius: 7px; background: var(--theme-color-background-tertiary, #eceef2);
-	color: var(--theme-color-brand-primary, #156dd1); margin-top: 1px; }
+	color: var(--theme-color-brand-primary, #156dd1); margin-top: 1px; font-size: 1rem; }
 .pict-nav-sb-item-text { min-width: 0; }
 .pict-nav-sb-item-name { display: block; font-weight: 600; font-size: 0.9rem; line-height: 1.15; }
 .pict-nav-sb-item-desc { display: block; font-size: 0.76rem; color: var(--theme-color-text-muted, #6b7686); line-height: 1.32; margin-top: 1px; }
@@ -185,7 +185,7 @@ class PictViewNavigationSidebar extends libPictViewClass
 			const tmpCollapsed = (pCategory.Collapsed && !tmpQuery) ? ' collapsed' : '';
 			tmpHTML += `<div class="pict-nav-sb-group${tmpCollapsed}">
 				<div class="pict-nav-sb-group-head" onclick="this.parentNode.classList.toggle('collapsed')">
-					<span class="pict-nav-sb-cat-ic"${tmpCatStyle}>${pCategory.Icon ? `<i class="${pCategory.Icon}"></i>` : ''}</span>
+					<span class="pict-nav-sb-cat-ic"${tmpCatStyle}>${pCategory.Icon ? this.pict.icon(pCategory.Icon) : ''}</span>
 					<span>${tmpProvider.escapeHTML(pCategory.Name)}</span>
 					<span class="pict-nav-sb-chev">${tmpChevron}</span>
 				</div>
@@ -198,7 +198,7 @@ class PictViewNavigationSidebar extends libPictViewClass
 				// Docked rail navigates immediately; two-pane shows the item in the detail pane.
 				const tmpClick = this.options.ShowDetail ? 'select' : 'activate';
 				tmpHTML += `<a class="pict-nav-sb-item${tmpActive}" href="${pItem.Route ? tmpProvider.escapeHTML(pItem.Route) : '#'}" title="${tmpProvider.escapeHTML(pItem.Description)}" onclick="return ${tmpHandler}.${tmpClick}('${pItem.Hash}', event)">
-					<span class="pict-nav-sb-item-ic"${tmpIcStyle}>${pItem.Icon ? `<i class="${pItem.Icon}"></i>` : ''}</span>
+					<span class="pict-nav-sb-item-ic"${tmpIcStyle}>${pItem.Icon ? this.pict.icon(pItem.Icon) : ''}</span>
 					<span class="pict-nav-sb-item-text"><span class="pict-nav-sb-item-name">${tmpProvider.highlight(pItem.Name, tmpQuery)}</span>${pItem.Description ? `<span class="pict-nav-sb-item-desc">${tmpProvider.highlight(pItem.Description, tmpQuery)}</span>` : ''}</span>
 				</a>`;
 			});
@@ -227,7 +227,7 @@ class PictViewNavigationSidebar extends libPictViewClass
 			const tmpRoute = tmpNode.Route ? tmpProvider.escapeHTML(tmpNode.Route) : '';
 			tmpHTML = `<div class="pict-nav-sb-detail">
 				<div class="pict-nav-sb-detail-head">
-					<span class="pict-nav-sb-detail-ic"${tmpIcStyle}>${tmpNode.Icon ? `<i class="${tmpNode.Icon}"></i>` : ''}</span>
+					<span class="pict-nav-sb-detail-ic"${tmpIcStyle}>${tmpNode.Icon ? this.pict.icon(tmpNode.Icon) : ''}</span>
 					<div>
 						<h1 class="pict-nav-sb-detail-title">${tmpProvider.escapeHTML(tmpNode.Name)}${tmpNode.Advanced ? '<span class="pict-nav-sb-adv-tag">Advanced</span>' : ''}</h1>
 						${tmpNode.Description ? `<p class="pict-nav-sb-detail-sub">${tmpProvider.escapeHTML(tmpNode.Description)}</p>` : ''}
@@ -246,7 +246,7 @@ class PictViewNavigationSidebar extends libPictViewClass
 			{
 				const tmpCatStyle = pCategory.Accent ? ` style="color:${pCategory.Accent}"` : '';
 				tmpCats += `<div class="pict-nav-sb-welcome-cat">
-					<span class="pict-nav-sb-welcome-cat-ic"${tmpCatStyle}>${pCategory.Icon ? `<i class="${pCategory.Icon}"></i>` : ''}</span>
+					<span class="pict-nav-sb-welcome-cat-ic"${tmpCatStyle}>${pCategory.Icon ? this.pict.icon(pCategory.Icon) : ''}</span>
 					<span><strong>${tmpProvider.escapeHTML(pCategory.Name)}</strong>${pCategory.Blurb ? ` <span class="pict-nav-sb-welcome-cat-blurb">— ${tmpProvider.escapeHTML(pCategory.Blurb)}</span>` : ''}</span>
 				</div>`;
 			});

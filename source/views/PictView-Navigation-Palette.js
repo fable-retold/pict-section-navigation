@@ -57,7 +57,7 @@ const default_configuration =
 .pict-nav-pl-cat { font-size: 0.67rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--theme-color-text-muted, #6b7686); padding: 0.7rem 0.75rem 0.25rem; }
 .pict-nav-pl-row { display: flex; align-items: center; gap: 0.85rem; padding: 0.55rem 0.75rem; border-radius: 9px; cursor: pointer; scroll-margin: 8px; }
 .pict-nav-pl-row.hl { background: color-mix(in srgb, var(--theme-color-brand-primary, #156dd1) 12%, transparent); }
-.pict-nav-pl-row .pict-nav-ic { width: 32px; height: 32px; }
+.pict-nav-pl-row .pict-nav-ic { width: 32px; height: 32px; font-size: 1.15rem; display: inline-flex; align-items: center; justify-content: center; }
 .pict-nav-pl-text { min-width: 0; }
 .pict-nav-pl-name { font-weight: 600; }
 .pict-nav-pl-desc { display: block; font-size: 0.79rem; color: var(--theme-color-text-muted, #6b7686); line-height: 1.25; margin-top: 1px; }
@@ -159,7 +159,7 @@ class PictViewNavigationPalette extends libPictViewClass
 				? `<span class="pict-nav-pl-tag">${tmpProvider.escapeHTML(pCategory.Name)}</span><span class="pict-nav-pl-enter">↵ open</span>`
 				: `<span class="pict-nav-pl-enter">↵ open</span>`;
 			return `<div class="pict-nav-pl-row" data-idx="${tmpIdx}" onmousemove="${tmpHandler}.setHighlight(${tmpIdx})" onclick="${tmpHandler}.openIndex(${tmpIdx})">
-				<span class="pict-nav-ic"${tmpIcStyle}>${pItem.Icon ? `<i class="${pItem.Icon}"></i>` : ''}</span>
+				<span class="pict-nav-ic"${tmpIcStyle}>${pItem.Icon ? this.pict.icon(pItem.Icon) : ''}</span>
 				<span class="pict-nav-pl-text"><span class="pict-nav-pl-name">${tmpProvider.highlight(pItem.Name, tmpQuery)}${pItem.Advanced ? '<span class="pict-nav-pl-adv-pill">adv</span>' : ''}</span>${pItem.Description ? `<span class="pict-nav-pl-desc">${tmpProvider.highlight(pItem.Description, tmpQuery)}</span>` : ''}</span>
 				${tmpTail}
 			</div>`;

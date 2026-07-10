@@ -299,5 +299,75 @@ suite
 				});
 			}
 		);
+
+		suite
+		(
+			'Sidebar — collapsed groups keep the active item visible',
+			() =>
+			{
+				const _COLLAPSIBLE_GRAPH =
+				[
+					{
+						Name: 'Main', Hash: 'main',
+						Children: [ { Name: 'Home', Route: '#/Home' } ]
+					},
+					{
+						Name: 'Settings', Hash: 'settings-area', Collapsed: true,
+						Children:
+						[
+							{ Name: 'Profile', Route: '#/settings/profile' },
+							{ Name: 'Appearance', Route: '#/settings/appearance' }
+						]
+					}
+				];
+
+				let _Pict;
+				let _Provider;
+
+				setup(() =>
+				{
+					_Pict = new libPict();
+					_Provider = _Pict.addProvider('Pict-Navigation', { NavigationGraph: _COLLAPSIBLE_GRAPH }, libPictProviderNavigation);
+				});
+
+				// Does the rendered rail group whose head reads pName carry the 'collapsed' class?
+				// Returns null when no DOM is available (headless) so the caller can skip cleanly.
+				const fGroupCollapsed = (pName) =>
+				{
+					if (typeof document === 'undefined') { return null; }
+					let tmpGroups = Array.prototype.slice.call(document.querySelectorAll('.pict-nav-sb-group'));
+					let tmpGroup = tmpGroups.find((pEl) =>
+					{
+						let tmpName = pEl.querySelector('.pict-nav-sb-group-head span:not([class])');
+						return tmpName && tmpName.textContent.trim() === pName;
+					});
+					return tmpGroup ? tmpGroup.classList.contains('collapsed') : null;
+				};
+
+				test('a Collapsed-by-default group renders collapsed when nothing in it is active', (fDone) =>
+				{
+					if (typeof document === 'undefined') { return fDone(); }   // headless: nothing to assert
+					document.body.innerHTML = '<div id="Nav-Test"></div>';
+					_Provider.render('Sidebar', '#Nav-Test');
+					Expect(fGroupCollapsed('Settings')).to.equal(true);
+					Expect(fGroupCollapsed('Main')).to.equal(false);
+					return fDone();
+				});
+
+				test('the group holding the active item renders expanded, and stays open across a syncActive repaint', (fDone) =>
+				{
+					if (typeof document === 'undefined') { return fDone(); }   // headless: nothing to assert
+					document.body.innerHTML = '<div id="Nav-Test"></div>';
+					// Navigate into a settings page, then render + repaint exactly as the host does.
+					_Provider.setActiveByRoute('#/settings/appearance');
+					_Provider.render('Sidebar', '#Nav-Test');
+					Expect(fGroupCollapsed('Settings')).to.equal(false);
+					// The repaint the app fires after a navigation must not fold the group back up.
+					_Pict.views['Navigation-Sidebar'].syncActive();
+					Expect(fGroupCollapsed('Settings')).to.equal(false);
+					return fDone();
+				});
+			}
+		);
 	}
 );

@@ -174,6 +174,7 @@ class PictViewNavigationSidebar extends libPictViewClass
 		if (!tmpProvider) return;
 		const tmpHandler = `_Pict.views['${this.options.ViewIdentifier}']`;
 		const tmpQuery = tmpProvider.getQuery();
+		const tmpActiveHash = tmpProvider.getActive();
 		const tmpCategories = tmpProvider.getFilteredCategories({ Scope: this.options.Scope, Filter: this.options.Filter });
 		const tmpChevron = this.pict.icon('ChevronDown');
 
@@ -181,8 +182,11 @@ class PictViewNavigationSidebar extends libPictViewClass
 		tmpCategories.forEach((pCategory) =>
 		{
 			const tmpCatStyle = pCategory.Accent ? ` style="color:${pCategory.Accent}"` : '';
-			// A category can render collapsed by default (pCategory.Collapsed); an active search forces it open.
-			const tmpCollapsed = (pCategory.Collapsed && !tmpQuery) ? ' collapsed' : '';
+			// A category can render collapsed by default (pCategory.Collapsed); an active search, or holding the
+			// currently-active item, forces it open -- so navigating within a collapsed-by-default group (e.g. the
+			// Settings group) does not fold it up under you on the repaint that follows the navigation.
+			const tmpHoldsActive = !!tmpActiveHash && (pCategory.Items || []).some((pItem) => pItem.Hash === tmpActiveHash);
+			const tmpCollapsed = (pCategory.Collapsed && !tmpQuery && !tmpHoldsActive) ? ' collapsed' : '';
 			tmpHTML += `<div class="pict-nav-sb-group${tmpCollapsed}">
 				<div class="pict-nav-sb-group-head" onclick="this.parentNode.classList.toggle('collapsed')">
 					<span class="pict-nav-sb-cat-ic"${tmpCatStyle}>${pCategory.Icon ? this.pict.icon(pCategory.Icon) : ''}</span>
@@ -194,7 +198,7 @@ class PictViewNavigationSidebar extends libPictViewClass
 			{
 				const tmpAccent = pItem.Accent || pCategory.Accent;
 				const tmpIcStyle = tmpAccent ? ` style="color:${tmpAccent}"` : '';
-				const tmpActive = (tmpProvider.getActive() === pItem.Hash) ? ' is-active' : '';
+				const tmpActive = (tmpActiveHash === pItem.Hash) ? ' is-active' : '';
 				// Docked rail navigates immediately; two-pane shows the item in the detail pane.
 				const tmpClick = this.options.ShowDetail ? 'select' : 'activate';
 				tmpHTML += `<a class="pict-nav-sb-item${tmpActive}" href="${pItem.Route ? tmpProvider.escapeHTML(pItem.Route) : '#'}" title="${tmpProvider.escapeHTML(pItem.Description)}" onclick="return ${tmpHandler}.${tmpClick}('${pItem.Hash}', event)">

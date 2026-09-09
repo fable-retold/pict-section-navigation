@@ -167,8 +167,10 @@ class PictViewNavigationPalette extends libPictViewClass
 
 		if (!tmpQuery)
 		{
-			// Empty query: full directory, grouped by category with a header before each group.
-			const tmpCategories = tmpProvider.getFilteredCategories({ Query: tmpQuery, Scope: this.options.Scope, Filter: this.options.Filter });
+			// Empty query: full directory, grouped by category with a header before each group. The palette is a
+			// jump-to-anywhere surface with no advanced toggle of its own, so it always lists advanced items too
+			// (ShowAdvanced: true); the query branch below already ignores the advanced gate via searchFlat.
+			const tmpCategories = tmpProvider.getFilteredCategories({ Query: tmpQuery, Scope: this.options.Scope, Filter: this.options.Filter, ShowAdvanced: true });
 			tmpCategories.forEach((pCategory) =>
 			{
 				tmpHTML += `<div class="pict-nav-pl-cat">${tmpProvider.escapeHTML(pCategory.Name)}</div>`;

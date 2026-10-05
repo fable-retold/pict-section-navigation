@@ -138,6 +138,59 @@ suite
 					return fDone();
 				});
 
+				// A graph where a DESCRIPTION-only match ('Overview') sits EARLIER in graph order than the
+				// TITLE match ('Entitlements'), and an analytics title match ('Project Activity') sits earlier
+				// than the entity title match ('Projects') — so an unranked (graph-order) search would get both wrong.
+				const _RANK_GRAPH =
+				[
+					{ Name: 'Analytics', Children:
+						[
+							{ Name: 'Project Activity', Description: 'A project records-over-time dashboard.', Route: '#/ProjectActivity' }
+						] },
+					{ Name: 'Admin', Children:
+						[
+							{ Name: 'Overview', Description: 'Covers entitlements, roles and more.', Route: '#/Overview' },
+							{ Name: 'Entitlements', Description: 'Toggle features on or off.', Route: '#/Entitlements' }
+						] },
+					{ Name: 'Core', Children:
+						[
+							{ Name: 'Projects', Description: 'Projects and their status.', Route: '#/Projects' }
+						] }
+				];
+
+				test('searchFlat ranks a TITLE match above a DESCRIPTION-only match (even when the description match is earlier in the graph)', (fDone) =>
+				{
+					_Provider.setNavigationGraph(_RANK_GRAPH);
+					_Provider.setQuery('entitlements');
+					let tmpNames = _Provider.searchFlat().map((pRow) => pRow.Item.Name);
+					// Both 'Overview' (description) and 'Entitlements' (title) match; the title match must win.
+					Expect(tmpNames).to.include('Entitlements').and.to.include('Overview');
+					Expect(tmpNames[0]).to.equal('Entitlements');
+					Expect(tmpNames.indexOf('Entitlements')).to.be.lessThan(tmpNames.indexOf('Overview'));
+					return fDone();
+				});
+
+				test('searchFlat ranks the entity screen above analytics for a shared word ("project" -> Projects before Project Activity)', (fDone) =>
+				{
+					_Provider.setNavigationGraph(_RANK_GRAPH);
+					_Provider.setQuery('project');
+					let tmpNames = _Provider.searchFlat().map((pRow) => pRow.Item.Name);
+					Expect(tmpNames[0]).to.equal('Projects');
+					Expect(tmpNames.indexOf('Projects')).to.be.lessThan(tmpNames.indexOf('Project Activity'));
+					return fDone();
+				});
+
+				test('scoreNode puts any title match in a strictly higher band than any description-only match', (fDone) =>
+				{
+					// Title substring (weakest title hit) vs a whole-query description hit with a repeated token.
+					let tmpTitleHit = _Provider.scoreNode({ Name: 'Widget Settings', Description: '' }, 'set');
+					let tmpBodyHit = _Provider.scoreNode({ Name: 'Zzz', Description: 'settings settings settings', Keywords: 'settings' }, 'settings');
+					Expect(tmpTitleHit).to.be.greaterThan(tmpBodyHit);
+					Expect(_Provider.scoreNode({ Name: 'Exact', Description: '' }, 'exact'))
+						.to.be.greaterThan(_Provider.scoreNode({ Name: 'Exactly More Words', Description: '' }, 'exact'));
+					return fDone();
+				});
+
 				test('highlight wraps matches in <mark>', (fDone) =>
 				{
 					let tmpHTML = _Provider.highlight('Customer Orders', 'order');

@@ -250,6 +250,87 @@ class PictNavigationProvider extends libPictProvider
 		return pQuery.split(/\s+/).filter(Boolean).every((pTok) => tmpHay.indexOf(pTok) >= 0);
 	}
 
+	/** Does pNeedle begin a word in pHay (at the start, or after a non-alphanumeric)? Both already lowercased. */
+	_hasWordStart(pHay, pNeedle)
+	{
+		if (!pNeedle) return false;
+		let tmpFrom = 0;
+		for (;;)
+		{
+			const tmpAt = pHay.indexOf(pNeedle, tmpFrom);
+			if (tmpAt < 0) return false;
+			if (tmpAt === 0 || /[^a-z0-9]/.test(pHay.charAt(tmpAt - 1))) return true;
+			tmpFrom = tmpAt + 1;
+		}
+	}
+
+	/**
+	 * Relevance score for ranking search results (higher = better). A match in the TITLE (Name)
+	 * ALWAYS outranks a match that is only in the Description/Keywords — the two live in separate
+	 * bands (title band starts at 10000; the body band is capped below it), so the title-vs-body
+	 * ordering can never be inverted by a long query racking up description hits. Within the title
+	 * band, a tighter match scores higher — exact > prefix > word-start > substring — plus a
+	 * coverage term (how much of the title the query spans) so e.g. "project" ranks the "Projects"
+	 * screen above "Project Activity". pQuery is expected already trimmed + lowercased, as
+	 * matchesNode receives it; callers should only score nodes that matchesNode() accepts.
+	 *
+	 * @param {Object} pNode - a leaf node ({ Name, Description, Keywords, ... })
+	 * @param {string} pQuery - the trimmed, lowercased query
+	 * @returns {number}
+	 */
+	scoreNode(pNode, pQuery)
+	{
+		if (!pQuery) return 0;
+		const tmpName = String(pNode.Name == null ? '' : pNode.Name).toLowerCase();
+		const tmpDesc = String(pNode.Description == null ? '' : pNode.Description).toLowerCase();
+		const tmpKeys = String(pNode.Keywords == null ? '' : pNode.Keywords).toLowerCase();
+		const tmpTokens = pQuery.split(/\s+/).filter(Boolean);
+
+		// ── Title (Name) quality — 0 means no title hit ──
+		let tmpTitle = 0;
+		const tmpNameAt = tmpName.indexOf(pQuery);
+		if (tmpName === pQuery) tmpTitle = 1000;                        // exact title
+		else if (tmpNameAt === 0) tmpTitle = 600;                       // title starts with the whole query
+		else if (this._hasWordStart(tmpName, pQuery)) tmpTitle = 420;   // query starts a word in the title
+		else if (tmpNameAt >= 0) tmpTitle = 260;                        // query appears somewhere in the title
+		if (tmpTitle > 0)
+		{
+			// Coverage: the more of the title the query spans, the more specific the match
+			// ("project" covers most of "Projects" but little of "Project Activity").
+			tmpTitle += Math.round((pQuery.length / Math.max(tmpName.length, 1)) * 200);
+		}
+		// Per-token title hits keep multi-word queries title-weighted.
+		tmpTokens.forEach((pTok) =>
+		{
+			if (this._hasWordStart(tmpName, pTok)) tmpTitle += 90;
+			else if (tmpName.indexOf(pTok) >= 0) tmpTitle += 55;
+		});
+
+		// ── Description + Keywords quality — bounded strictly below the title band ──
+		let tmpBody = 0;
+		if (tmpDesc.indexOf(pQuery) >= 0) tmpBody += 60;
+		if (tmpKeys.indexOf(pQuery) >= 0) tmpBody += 40;
+		tmpTokens.forEach((pTok) =>
+		{
+			if (tmpDesc.indexOf(pTok) >= 0) tmpBody += 18;
+			if (tmpKeys.indexOf(pTok) >= 0) tmpBody += 10;
+		});
+		if (tmpBody > 900) tmpBody = 900;
+
+		// Title band (>= 10000) always beats the body-only band (< 1000).
+		return (tmpTitle > 0) ? (10000 + tmpTitle + tmpBody) : tmpBody;
+	}
+
+	/** Stable, relevance-descending sort of leaf nodes for a query (ties keep authored graph order). */
+	_rankNodes(pNodes, pGetNode, pQuery)
+	{
+		if (!pQuery || !Array.isArray(pNodes) || pNodes.length < 2) return pNodes;
+		return pNodes
+			.map((pEntry, pIndex) => ({ Entry: pEntry, Score: this.scoreNode(pGetNode(pEntry), pQuery), Ordinal: pIndex }))
+			.sort((pA, pB) => (pB.Score - pA.Score) || (pA.Ordinal - pB.Ordinal))
+			.map((pWrapped) => pWrapped.Entry);
+	}
+
 	/**
 	 * Categories (top-level nodes) with their leaf items filtered by the current — or
 	 * supplied — query + showAdvanced. Advanced items are hidden while browsing but an
@@ -276,12 +357,14 @@ class PictNavigationProvider extends libPictProvider
 		this.getNavigationGraph().forEach((pCategory) =>
 		{
 			if (tmpScope && tmpScope.indexOf(pCategory.Hash) < 0) return;
-			const tmpItems = (pCategory.Children || []).filter((pItem) =>
+			let tmpItems = (pCategory.Children || []).filter((pItem) =>
 				(!tmpGlobalFilter || tmpGlobalFilter(pItem, pCategory)) &&
 				(!tmpFilter || tmpFilter(pItem, pCategory)) &&
 				(tmpShowAdvanced || !pItem.Advanced || (tmpQuery && this.matchesNode(pItem, tmpQuery))) &&
 				this.matchesNode(pItem, tmpQuery));
 			if (tmpItems.length === 0) return;
+			// When searching, rank items within the category (title before description); browsing keeps authored order.
+			tmpItems = this._rankNodes(tmpItems, (pItem) => pItem, tmpQuery);
 			tmpResult.push(Object.assign({}, pCategory, { Items: tmpItems }));
 		});
 		return tmpResult;
@@ -315,7 +398,8 @@ class PictNavigationProvider extends libPictProvider
 				if (this.matchesNode(pItem, tmpQuery)) tmpResult.push({ Item: pItem, Category: pCategory });
 			});
 		});
-		return tmpResult;
+		// Rank: title matches before description/keyword matches, tighter matches first (ties keep graph order).
+		return this._rankNodes(tmpResult, (pEntry) => pEntry.Item, tmpQuery);
 	}
 
 	// ── Render helpers ───────────────────────────────────────────────────────
